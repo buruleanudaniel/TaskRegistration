@@ -1,4 +1,5 @@
 This is a simple user registration form that does not use password hashing. It instead is based of using ASCII characters as simple passwords.
+
 ![image](https://github.com/user-attachments/assets/b6a65f72-40a7-42c0-b69a-cf23658eb34d)
 
 ![image](https://github.com/user-attachments/assets/44627b1e-d22c-43a9-96d8-a95ce3d62213)
