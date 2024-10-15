@@ -2,11 +2,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
-    private List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
     private int userIdCounter = 1;
 
-    public User registerUser(String username, String password){
-        User user = new User(userIdCounter++, username, password);
+    public User registerUser(String username, String password, double balance){
+        User user = new User(userIdCounter++, username, password, balance);
         users.add(user);
         return user;
     }

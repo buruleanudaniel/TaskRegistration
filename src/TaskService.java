@@ -2,7 +2,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class TaskService {
-    private TaskRepository taskRepository = new TaskRepository();
+    private final TaskRepository taskRepository = new TaskRepository();
 
     public Task createTask(String title, String description, LocalDate dueDate, String status, String priority) {
         return taskRepository.createTask(title, description, dueDate, status, priority);

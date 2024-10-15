@@ -42,8 +42,14 @@ public class Main {
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
-        User user = userService.register(username, password);
-        System.out.println("Registration successful! User ID: " + user.getId());
+
+        if(password.isEmpty() || username.isEmpty()){
+            System.out.println("You cannot enter an empty username / password.");
+        }else{
+            User user = userService.register(username, password, 0);
+            System.out.println("Registration successful! User ID: " + user.getId());
+        }
+
     }
 
     private static void login() {
@@ -62,29 +68,37 @@ public class Main {
     private static void taskMenu() {
         while (currentUser != null) {
             System.out.println("\nTask Menu:");
-            System.out.println("1. Create Task");
-            System.out.println("2. View All Tasks");
-            System.out.println("3. Update Task");
-            System.out.println("4. Delete Task");
-            System.out.println("5. Logout");
+            System.out.println("1. View balance");
+            System.out.println("2. Add balance");
+            System.out.println("3. Create Task");
+            System.out.println("4. View All Tasks");
+            System.out.println("5. Update Task");
+            System.out.println("6. Delete Task");
+            System.out.println("7. Logout");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
 
             switch (choice) {
                 case 1:
-                    createTask();
+                    seeBalance();
                     break;
                 case 2:
-                    viewTasks();
+                    addBalance();
                     break;
                 case 3:
-                    updateTask();
+                    createTask();
                     break;
                 case 4:
-                    deleteTask();
+                    viewTasks();
                     break;
                 case 5:
+                    updateTask();
+                    break;
+                case 6:
+                    deleteTask();
+                    break;
+                case 7:
                     currentUser = null; // Logout
                     System.out.println("Logged out successfully.");
                     break;
@@ -92,6 +106,16 @@ public class Main {
                     System.out.println("Invalid choice. Try again.");
             }
         }
+    }
+    private static void seeBalance(){
+        System.out.println("So you want to view your balance, huh?");
+        System.out.println("\n Your balance is " + currentUser.viewBalance());
+    }
+
+    private static void addBalance(){
+        System.out.println("Enter the balance you want to add: ");
+        double balanceToAdd = Integer.valueOf(scanner.nextLine());
+        currentUser.addBalance(balanceToAdd);
     }
 
     private static void createTask() {
