@@ -11,6 +11,15 @@ public class UserRepository {
         return user;
     }
 
+    public User findUserById(int id){
+        for(User user : users){
+            if(user.getId() == id){
+                return user;
+            }
+        }
+        return null;
+    }
+
     public User findUserByUsername(String username){
         for(User user : users){
             if(user.getUsername().equals(username)){
@@ -20,4 +29,12 @@ public class UserRepository {
         return null;
     }
 
+    public boolean deleteUser(int id) {
+        User user = findUserById(id);
+        if (user != null) {
+            users.remove(user);
+            return true; // Deletion successful
+        }
+        return false; // Task not found
+    }
 }

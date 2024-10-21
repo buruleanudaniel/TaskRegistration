@@ -11,6 +11,10 @@ public class User {
         this.balance = 0;
     }
 
+    public User(int id){
+        this.id = id;
+    }
+
 
     public String getUsername() {
         return username;
