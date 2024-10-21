@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -8,67 +10,135 @@ public class MainGUI extends JFrame {
     private TaskService taskService = new TaskService();
     private User currentUser;
 
-    private JTextField registerUsernameField, loginUsernameField, addBalanceField;
+    private JTextField registerUsernameField, loginUsernameField, addBalanceField, removeBalanceField, viewBalanceField;
     private JPasswordField registerPasswordField, loginPasswordField;
     private JTextArea taskListTextArea;
+    private JLabel statusLabel;
 
     public MainGUI() {
-        setTitle("User and Task Management");
-        setSize(600, 400);
+        setTitle("User and Task Management System");
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new CardLayout());
+        setLayout(new BorderLayout(10, 10));
 
-        JPanel mainPanel = new JPanel(new GridLayout(1, 2));
-        mainPanel.add(createUserPanel());
-        mainPanel.add(createTaskPanel());
+        // Top status bar
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusLabel = new JLabel("Welcome! Please register or login.");
+        statusPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        statusPanel.add(statusLabel, BorderLayout.CENTER);
+        add(statusPanel, BorderLayout.NORTH);
 
-        add(mainPanel);
+        // Main panels
+        JPanel userPanel = createUserPanel();
+        JPanel taskPanel = createTaskPanel();
+
+        // Organize into the main layout
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, userPanel, taskPanel);
+        splitPane.setDividerLocation(400);
+        add(splitPane, BorderLayout.CENTER);
+
+        // Footer section for future use (e.g., DB connection status)
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        footerPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        JLabel footerLabel = new JLabel("Ready for future database integration.");
+        footerPanel.add(footerLabel);
+        add(footerPanel, BorderLayout.SOUTH);
     }
 
     private JPanel createUserPanel() {
-        JPanel userPanel = new JPanel(new GridLayout(8, 1));
+        JPanel userPanel = new JPanel(new BorderLayout());
         userPanel.setBorder(BorderFactory.createTitledBorder("User Management"));
 
+        JPanel userFormPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
         // Register Section
-        userPanel.add(new JLabel("Register:"));
-        registerUsernameField = new JTextField(10);
-        registerPasswordField = new JPasswordField(10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        userFormPanel.add(new JLabel("Register New User"), gbc);
+
+        registerUsernameField = new JTextField(15);
+        gbc.gridy++;
+        userFormPanel.add(new JLabel("Username:"), gbc);
+        gbc.gridx = 1;
+        userFormPanel.add(registerUsernameField, gbc);
+
+        registerPasswordField = new JPasswordField(15);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        userFormPanel.add(new JLabel("Password:"), gbc);
+        gbc.gridx = 1;
+        userFormPanel.add(registerPasswordField, gbc);
+
         JButton registerButton = new JButton("Register");
+        registerButton.setToolTipText("Register a new account");
         registerButton.addActionListener(e -> registerUser());
-        userPanel.add(new JLabel("Username:"));
-        userPanel.add(registerUsernameField);
-        userPanel.add(new JLabel("Password:"));
-        userPanel.add(registerPasswordField);
-        userPanel.add(registerButton);
+        gbc.gridy++;
+        gbc.gridx = 1;
+        userFormPanel.add(registerButton, gbc);
 
         // Login Section
-        userPanel.add(new JLabel("Login:"));
-        loginUsernameField = new JTextField(10);
-        loginPasswordField = new JPasswordField(10);
-        JButton loginButton = new JButton("Login");
-        loginButton.addActionListener(e -> loginUser());
-        userPanel.add(new JLabel("Username:"));
-        userPanel.add(loginUsernameField);
-        userPanel.add(new JLabel("Password:"));
-        userPanel.add(loginPasswordField);
-        userPanel.add(loginButton);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        userFormPanel.add(new JLabel("Login Existing User"), gbc);
 
-        // Add balance button
+        loginUsernameField = new JTextField(15);
+        gbc.gridy++;
+        userFormPanel.add(new JLabel("Username:"), gbc);
+        gbc.gridx = 1;
+        userFormPanel.add(loginUsernameField, gbc);
+
+        loginPasswordField = new JPasswordField(15);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        userFormPanel.add(new JLabel("Password:"), gbc);
+        gbc.gridx = 1;
+        userFormPanel.add(loginPasswordField, gbc);
+
+        JButton loginButton = new JButton("Login");
+        loginButton.setToolTipText("Login to your account");
+        loginButton.addActionListener(e -> loginUser());
+        gbc.gridy++;
+        gbc.gridx = 1;
+        userFormPanel.add(loginButton, gbc);
+
+        // Balance Section
         addBalanceField = new JTextField(10);
         JButton addBalanceButton = new JButton("Add Balance");
         addBalanceButton.addActionListener(e -> addBalance());
-        userPanel.add(new JLabel("Add Balance:"));
-        userPanel.add(addBalanceField);
-        userPanel.add(addBalanceButton);
+
+        removeBalanceField = new JTextField(10);
+        JButton removeBalanceButton = new JButton("Remove Balance");
+        removeBalanceButton.addActionListener(e -> removeBalance());
+
+        viewBalanceField = new JTextField(10);
+        JButton viewBalanceButton = new JButton("View balance");
+        viewBalanceButton.addActionListener(e -> updateBalance());
+
+        JPanel balancePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        balancePanel.setBorder(BorderFactory.createTitledBorder("Balance Management"));
+        balancePanel.add(new JLabel("Amount:"));
+        balancePanel.add(addBalanceField);
+        balancePanel.add(addBalanceButton);
+        balancePanel.add(removeBalanceField);
+        balancePanel.add(removeBalanceButton);
+        //balancePanel.add(viewBalanceField);
+        balancePanel.add(viewBalanceButton);
+
+        // Combine all sections
+        userPanel.add(userFormPanel, BorderLayout.CENTER);
+        userPanel.add(balancePanel, BorderLayout.SOUTH);
 
         return userPanel;
     }
 
     private JPanel createTaskPanel() {
-        JPanel taskPanel = new JPanel(new BorderLayout());
+        JPanel taskPanel = new JPanel(new BorderLayout(10, 10));
         taskPanel.setBorder(BorderFactory.createTitledBorder("Task Management"));
 
-        JPanel taskButtonPanel = new JPanel(new GridLayout(4, 1));
+        JPanel taskButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton viewTasksButton = new JButton("View Tasks");
         JButton createTaskButton = new JButton("Create Task");
         JButton updateTaskButton = new JButton("Update Task");
@@ -84,7 +154,7 @@ public class MainGUI extends JFrame {
         taskButtonPanel.add(updateTaskButton);
         taskButtonPanel.add(deleteTaskButton);
 
-        taskListTextArea = new JTextArea(10, 20);
+        taskListTextArea = new JTextArea(15, 30);
         taskListTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(taskListTextArea);
 
@@ -99,9 +169,9 @@ public class MainGUI extends JFrame {
         String password = new String(registerPasswordField.getPassword());
         if (!username.isEmpty() && !password.isEmpty()) {
             userService.register(username, password, 0);
-            JOptionPane.showMessageDialog(this, "User registered successfully!");
+            statusLabel.setText("User registered successfully!");
         } else {
-            JOptionPane.showMessageDialog(this, "Please enter username and password.");
+            JOptionPane.showMessageDialog(this, "Please enter username and password.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -110,10 +180,18 @@ public class MainGUI extends JFrame {
         String password = new String(loginPasswordField.getPassword());
         currentUser = userService.login(username, password);
         if (currentUser != null) {
-            JOptionPane.showMessageDialog(this, "Login successful!");
+            statusLabel.setText("Logged in as " + currentUser.getUsername());
         } else {
-            JOptionPane.showMessageDialog(this, "Login failed. Invalid credentials.");
+            JOptionPane.showMessageDialog(this, "Login failed. Invalid credentials.", "Login Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void updateBalance() {
+            //double balance = Double.parseDouble(viewBalanceField.getText());
+            if (currentUser != null) {
+                currentUser.viewBalance();
+                statusLabel.setText("Your balance is: $" + currentUser.viewBalance());
+            }
     }
 
     private void addBalance() {
@@ -121,20 +199,39 @@ public class MainGUI extends JFrame {
             double balance = Double.parseDouble(addBalanceField.getText());
             if (currentUser != null) {
                 currentUser.addBalance(balance);
-                JOptionPane.showMessageDialog(this, "Balance added successfully!");
+                statusLabel.setText("Balance updated: $" + currentUser.viewBalance());
             } else {
-                JOptionPane.showMessageDialog(this, "Please login first.");
+                JOptionPane.showMessageDialog(this, "Please login first.", "Login Required", JOptionPane.WARNING_MESSAGE);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid balance amount.");
+            JOptionPane.showMessageDialog(this, "Invalid balance amount.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removeBalance() {
+        try {
+            double balance = Double.parseDouble(removeBalanceField.getText());
+            if (currentUser != null) {
+                currentUser.removeBalance(balance);
+                statusLabel.setText("Balance updated: $" + currentUser.viewBalance());
+            } else {
+                JOptionPane.showMessageDialog(this, "Please login first.", "Login Required", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid balance amount.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void viewTasks() {
+        if (currentUser == null) {
+            JOptionPane.showMessageDialog(this, "Please login to view tasks.", "Login Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         List<Task> tasks = taskService.getAllTasks();
         taskListTextArea.setText("");
         for (Task task : tasks) {
-            taskListTextArea.append("ID: " + task.getId() + ", Title: " + task.getTitle() + "\n");
+            taskListTextArea.append(String.format("ID: %d, Title: %s, Due: %s, Status: %s\n", task.getId(), task.getTitle(), task.getDueDate(), task.getStatus()));
         }
     }
 

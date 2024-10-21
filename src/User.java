@@ -48,4 +48,9 @@ public class User {
         this.balance += balance;
         System.out.println("Your balance is " + this.balance);
     }
+
+    public void removeBalance(double balance){
+        this.balance -= balance;
+        System.out.println("Your balance is " + this.balance);
+    }
 }
