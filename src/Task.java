@@ -64,4 +64,9 @@ public class Task {
     public void setPriority(String priority) {
         this.priority = priority;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Title: %s, Due: %s, Status: %s", title, dueDate, status);
+    }
 }

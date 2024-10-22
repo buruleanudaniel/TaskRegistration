@@ -15,6 +15,8 @@ public class User {
         this.id = id;
     }
 
+    public User(String username, double balance) {
+    }
 
     public String getUsername() {
         return username;
