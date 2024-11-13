@@ -4,7 +4,7 @@ import java.util.List;
 public class TaskService {
     private final TaskRepository taskRepository = new TaskRepository();
 
-    public Task createTask(String title, String description, LocalDate dueDate, String status, String priority) {
+    public Task createTask(int id, String title, String description, LocalDate dueDate, String status, String priority) {
         return taskRepository.createTask(title, description, dueDate, status, priority);
     }
 

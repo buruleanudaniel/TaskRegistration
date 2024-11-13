@@ -67,6 +67,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("Title: %s, Due: %s, Status: %s", title, dueDate, status);
+        return String.format("Title: %s - - - Due: %s - - - Status: %s - - - Priority: %s", title, dueDate, status, priority);
     }
 }

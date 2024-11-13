@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class MainGUI extends JFrame {
     private JPanel mainPanel;
@@ -19,7 +20,7 @@ public class MainGUI extends JFrame {
 
     public MainGUI() {
         setTitle("Emissions Task System");
-        setSize(800, 600);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
@@ -173,6 +174,7 @@ public class MainGUI extends JFrame {
         JTextField titleField = new JTextField(10);
         JTextField descriptionField = new JTextField(10);
         JTextField dueDateField = new JTextField(10); // Format: YYYY-MM-DD
+        JTextField priorityField = new JTextField(10);
         JButton addButton = new JButton("Add Task");
 
         addTaskPanel.add(new JLabel("Title:"));
@@ -181,6 +183,8 @@ public class MainGUI extends JFrame {
         addTaskPanel.add(descriptionField);
         addTaskPanel.add(new JLabel("Due Date (YYYY-MM-DD):"));
         addTaskPanel.add(dueDateField);
+        addTaskPanel.add(new JLabel("Priority: "));
+        addTaskPanel.add(priorityField);
         addTaskPanel.add(addButton);
 
         taskPanel.add(addTaskPanel, BorderLayout.SOUTH);
@@ -189,10 +193,11 @@ public class MainGUI extends JFrame {
         addButton.addActionListener(e -> {
             String title = titleField.getText();
             String description = descriptionField.getText();
+            String priority = priorityField.getText();
             LocalDate dueDate;
             try {
                 dueDate = LocalDate.parse(dueDateField.getText());
-                Task task = taskRepository.createTask(title, description, dueDate, "Pending", "Normal");
+                Task task = taskRepository.createTask(title, description, dueDate, "Pending", priority);
                 taskListModel.addElement(task);
                 titleField.setText("");
                 descriptionField.setText("");
@@ -207,11 +212,29 @@ public class MainGUI extends JFrame {
 
         return taskPanel;
     }
-
     private JPopupMenu createTaskPopupMenu() {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem descriptionItem = new JMenuItem("Show Description");
+        JMenuItem changeDescription = new JMenuItem("Change description");
+        JMenuItem updatePriority = new JMenuItem("Update priority"); // priority update
+        JMenuItem updateStatus = new JMenuItem("Update status"); // status update
+        JMenuItem updateDueDate = new JMenuItem("Update due date"); // due date
+        JMenuItem updateTitle = new JMenuItem("Modify the title"); // modify title
+        JMenuItem deleteItem = new JMenuItem("Delete Task"); // Add delete option
 
+        updateTitle.addActionListener(e -> {
+            Task selectedTask = taskList.getSelectedValue();
+            if(selectedTask != null){
+                String newTitle = JOptionPane.showInputDialog(this, "Change the title: ");
+                if(newTitle.isEmpty()){
+                    JOptionPane.showMessageDialog(this, "Invalid entry");
+                }else{
+                    selectedTask.setTitle(newTitle);
+                }
+            }
+        });
+
+        // Action for showing description
         descriptionItem.addActionListener(e -> {
             Task selectedTask = taskList.getSelectedValue();
             if (selectedTask != null) {
@@ -221,9 +244,97 @@ public class MainGUI extends JFrame {
             }
         });
 
+        // Action for changing description
+        changeDescription.addActionListener(e -> {
+            Task selectedTask = taskList.getSelectedValue();
+            if (selectedTask != null) {
+                String newDescription = JOptionPane.showInputDialog(this, "Change the description: ");
+                if(newDescription.isEmpty()){
+                    JOptionPane.showMessageDialog(this, "Invalid entry");
+                }else{
+                    selectedTask.setDescription(newDescription);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a task.");
+            }
+        });
+
+        // Action for changing priority
+        updatePriority.addActionListener(e -> {
+            Task selectedTask = taskList.getSelectedValue();
+            if (selectedTask != null) {
+                String newPriority = JOptionPane.showInputDialog(this, "Change the priority: ");
+                if(newPriority.isEmpty()){
+                    JOptionPane.showMessageDialog(this, "Invalid entry");
+                }else{
+                    selectedTask.setPriority(newPriority);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a task.");
+            }
+        });
+
+        // Action for changing status
+        updateStatus.addActionListener(e -> {
+            Task selectedTask = taskList.getSelectedValue();
+            if (selectedTask != null) {
+                String newStatus = JOptionPane.showInputDialog(this, "Change the status: ");
+                selectedTask.setStatus(newStatus);
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a task.");
+            }
+        });
+
+        // Action for deleting a task
+        deleteItem.addActionListener(e -> {
+            Task selectedTask = taskList.getSelectedValue();
+            if (selectedTask != null) {
+                int response = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this task?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    TaskService taskService = new TaskService();
+                    boolean isDeleted = taskService.deleteTask(selectedTask.getId()); // Correctly delete by ID
+                    if (!isDeleted) {
+                        JOptionPane.showMessageDialog(this, "Task deleted successfully.");
+                        taskListModel.removeElement(selectedTask); // Remove from the model
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to delete task.");
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a task.");
+            }
+        });
+
+        // update due date
+        updateDueDate.addActionListener(e -> {
+            Task selectedTask = taskList.getSelectedValue();
+            if (selectedTask != null) {
+                try {
+                    String inputDate = JOptionPane.showInputDialog(this, "Change the due date (format: yyyy-MM-dd): ");
+                    if (inputDate != null && !inputDate.trim().isEmpty()) {
+                        LocalDate newDueDate = LocalDate.parse(inputDate);
+                        selectedTask.setDueDate(newDueDate);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Date change canceled or empty input.");
+                    }
+                } catch (DateTimeParseException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid date format. Please use yyyy-MM-dd.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a task.");
+            }
+        });
+
+        popupMenu.add(updateTitle);
         popupMenu.add(descriptionItem);
+        popupMenu.add(changeDescription); // changing description
+        popupMenu.add(deleteItem); // Add the delete item to the popup menu
+        popupMenu.add(updatePriority); // priority change
+        popupMenu.add(updateStatus); // status change
+        popupMenu.add(updateDueDate);
         return popupMenu;
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainGUI().setVisible(true));

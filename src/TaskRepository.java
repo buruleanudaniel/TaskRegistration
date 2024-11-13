@@ -1,5 +1,6 @@
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TaskRepository {
@@ -28,6 +29,15 @@ public class TaskRepository {
     public boolean updateTask(int id, String title, String description, LocalDate dueDate, String status, String priority) {
         Task task = getTaskById(id);
         if (task != null) {
+            task.setStatus(priority);
+            return true; // Update successful
+        }
+        return false; // Task not found
+    }
+
+    public boolean updateTaskStatus(int id, String title, String description, LocalDate dueDate, String status, String priority) {
+        Task task = getTaskById(id);
+        if (task != null) {
             task.setStatus(status);
             return true; // Update successful
         }
@@ -35,10 +45,13 @@ public class TaskRepository {
     }
 
     public boolean deleteTask(int id) {
-        Task task = getTaskById(id);
-        if (task != null) {
-            tasks.remove(task);
-            return true; // Deletion successful
+        Iterator<Task> iterator = tasks.iterator();
+        while (iterator.hasNext()) {
+            Task task = iterator.next();
+            if (task.getId() == id) {
+                iterator.remove();
+                return true; // Successfully deleted
+            }
         }
         return false; // Task not found
     }

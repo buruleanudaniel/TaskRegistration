@@ -11,8 +11,8 @@ public class UserService {
     // Method to establish a connection to the database
     private Connection getConnection() throws Exception {
         String url = "jdbc:mysql://localhost:3306/userdb";
-        String user = "root";
-        String password = "yourpassword"; // Replace with your MySQL root password
+        String user = "root"; // to be replaced with the database user ID
+        String password = "mySQLPassword"; // TO BE REPLACED WITH PASSWORD on MySQL
         return DriverManager.getConnection(url, user, password);
     }
 
